@@ -5,7 +5,7 @@
   var LIVE_SOCKET_URL = "wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContentConstrained";
   var POLL_MS = 750;
   var DONATION_AMOUNTS = [10, 25, 50, 100];
-  var panel = { active: null, target: "en", languages: null, languagesLoading: false };
+  var panel = { active: null, target: "en", languages: null, languagesLoading: false, openingUntil: 0 };
   var translation = {
     enabled: false,
     status: "idle",
@@ -165,6 +165,7 @@
   function openPanel(mode) {
     var store = appStore();
     panel.active = mode;
+    panel.openingUntil = Date.now() + 1800;
     setPanelSide(mode);
     if (store) {
       try {
@@ -186,7 +187,8 @@
 
   function togglePanel(mode) {
     var state = panelState();
-    if (panel.active === mode && state && state.isOpen) {
+    var fallbackOpen = Boolean(document.getElementById("orbit-panel-fallback"));
+    if (panel.active === mode && ((state && state.isOpen) || fallbackOpen)) {
       closeWrapper();
     } else {
       if (mode === "translator") {
@@ -223,7 +225,11 @@
     var original = api.notifyToolbarButtonClicked;
     var wrapped = function() {
       try {
-        handleToolbarKey(normalizeKey(arguments.length > 0 ? arguments[0] : ""));
+        var key = normalizeKey(arguments.length > 0 ? arguments[0] : "");
+        if ((key === TRANSLATOR_ID || key === DONATE_ID)
+            && !(Date.now() - lastAction.time < 500 && lastAction.key === key)) {
+          handleToolbarKey(key);
+        }
       } catch (ignored) {
         return original.apply(this, arguments);
       }
@@ -1409,9 +1415,12 @@
       syncTranslation();
     }
     var state = panelState();
-    if (panel.active && (!state || !state.isOpen)) {
-      closeWrapper();
-      return;
+    var fallbackOpen = Boolean(document.getElementById("orbit-panel-fallback"));
+    if (panel.active && (!state || !state.isOpen) && !fallbackOpen) {
+      if (Date.now() < panel.openingUntil) {
+        return;
+      }
+      ensureFallbackPanel();
     }
     renderActivePanel();
   }
