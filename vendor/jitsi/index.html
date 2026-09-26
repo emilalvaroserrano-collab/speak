@@ -1,0 +1,870 @@
+<html itemscope itemtype="http://schema.org/Product" prefix="og: http://ogp.me/ns#" xmlns="http://www.w3.org/1999/html">
+  <head>
+    <!-- Compute Pressure -->
+<meta http-equiv="origin-trial" content="Assj/5G57/ttqRE+RAGipFfy8NXJ738EAvJnLHtSSEIZiwPwKbKJ6e7RbDexYhLiXXwLSsBeLftYyuP2do4BwQwAAABqeyJvcmlnaW4iOiJodHRwczovL21lZXQuaml0LnNpOjQ0MyIsImZlYXR1cmUiOiJDb21wdXRlUHJlc3N1cmVfdjIiLCJleHBpcnkiOjE3MTY5NDA3OTksImlzU3ViZG9tYWluIjp0cnVlfQ==">
+
+    <meta charset="utf-8">
+    <meta http-equiv="content-type" content="text/html;charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="theme-color" content="#2A3A4B">
+    <base href="/" />
+
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="stylesheet" href="css/all.css?v=9442.6546">
+    
+    <link rel="manifest" id="manifest-placeholder">
+
+    <script>
+        function contextRoot(pathname) {
+            const contextRootEndIndex = pathname.lastIndexOf('/');
+
+            return (
+                contextRootEndIndex === -1
+                ? '/'
+                : pathname.substring(0, contextRootEndIndex + 1)
+            );
+        }
+        window.EXCALIDRAW_ASSET_PATH = 'libs/excalidraw/';
+        // Dynamically generate the manifest location URL. It must be served from the document origin, and we may have
+        // the base pointing to the CDN. This way we can generate a full URL which will bypass the base.
+        document.querySelector('#manifest-placeholder').setAttribute('href', window.location.origin + contextRoot(window.location.pathname) + 'manifest.json');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!JitsiMeetJS.app) {
+                return;
+            }
+
+            JitsiMeetJS.app.renderEntryPoint({
+                Component: JitsiMeetJS.app.entryPoints.APP
+            })
+
+            const isEmbedded = () => {
+                try {
+                    return window.self !== window.top;
+                } catch (e) {
+                    return true;
+                }
+            };
+
+            const isElectron = navigator.userAgent.includes('Electron');
+            const shouldRegisterWorker = false;
+
+            if (shouldRegisterWorker) {
+                navigator.serviceWorker
+                    .register(window.location.origin + contextRoot(window.location.pathname) + 'pwa-worker.js')
+                    .then(reg => {
+                        console.log('Service worker registered.', reg);
+                    })
+                    .catch(err => {
+                        console.log(err);
+                    });
+            }
+        });
+    </script>
+    <script>
+        // IE11 and earlier can be identified via their user agent and be
+        // redirected to a page that is known to have no newer js syntax.
+        if (window.navigator.userAgent.match(/(MSIE|Trident)/)) {
+            var roomName = encodeURIComponent(window.location.pathname);
+            window.location.pathname = 'static/recommendedBrowsers.html';
+        }
+
+        window.indexLoadedTime = window.performance.now();
+        console.log("(TIME) index.html loaded:\t", indexLoadedTime);
+        window.addEventListener('load', function() {
+            window.loadedEventTime = window.performance.now();
+            console.log("(TIME) window loaded event:\t", loadedEventTime);
+        });
+
+        // XXX the code below listeners for errors and displays an error message
+        // in the document body when any of the required files fails to load.
+        // The intention is to prevent from displaying broken page.
+        var criticalFiles = [
+            "config.js",
+            "utils.js",
+            "do_external_connect.js",
+            "interface_config.js",
+            "lib-jitsi-meet.min.js",
+            "app.bundle.min.js",
+            "all.css?v=9442.6546"
+        ];
+        var loadErrHandler = function(e) {
+            var target = e.target;
+            // Error on <script> and <link>(CSS)
+            // <script> will have .src and <link> .href
+            var fileRef = (target.src ? target.src : target.href);
+            if (("SCRIPT" === target.tagName || "LINK" === target.tagName)
+                && criticalFiles.some(
+                    function(file) { return fileRef.indexOf(file) !== -1 })) {
+                window.onload = function() {
+                    // The whole complex part below implements page reloads with
+                    // "exponential backoff". The retry attempt is passes as
+                    // "rCounter" query parameter
+                    var href = window.location.href;
+
+                    var retryMatch = href.match(/.+(\?|&)rCounter=(\d+)/);
+                    var retryCountStr = retryMatch ? retryMatch[2] : "0";
+                    var retryCount = Number.parseInt(retryCountStr);
+
+                    if (retryMatch == null) {
+                        var separator = href.indexOf("?") === -1 ? "?" : "&";
+                        var hashIdx = href.indexOf("#");
+
+                        if (hashIdx === -1) {
+                            href += separator + "rCounter=1";
+                        } else {
+                            var hashPart = href.substr(hashIdx);
+
+                            href = href.substr(0, hashIdx)
+                                + separator + "rCounter=1" + hashPart;
+                        }
+                    } else {
+                        var separator = retryMatch[1];
+
+                        href = href.replace(
+                            /(\?|&)rCounter=(\d+)/,
+                            separator + "rCounter=" + (retryCount + 1));
+                    }
+
+                    var delay = Math.pow(2, retryCount) * 2000;
+                    if (isNaN(delay) || delay < 2000 || delay > 60000)
+                        delay = 10000;
+
+                    var showMoreText = "show more";
+                    var showLessText = "show less";
+
+                    document.body.innerHTML
+                        = "<div style='"
+                        + "position: absolute;top: 50%;left: 50%;"
+                        + "text-align: center;"
+                        + "font-size: medium;"
+                        + "font-weight: 400;"
+                        + "transform: translate(-50%, -50%)'>"
+                        + "Uh oh! We couldn't fully download everything we needed :("
+                        + "<br/> "
+                        + "We will try again shortly. In the mean time, check for problems with your Internet connection!"
+                        + "<br/><br/> "
+                        + "<div id='moreInfo' style='"
+                        + "display: none;'>" + "Missing " + fileRef
+                        + "<br/><br/></div>"
+                        + "<a id='showMore' style='"
+                        + "text-decoration: underline;"
+                        + "font-size:small;"
+                        + "cursor: pointer'>" + showMoreText + "</a>"
+                        + "&nbsp;&nbsp;&nbsp;"
+                        + "<a id ='reloadLink' style='"
+                        + "text-decoration: underline;"
+                        + "font-size:small;"
+                        + "'>reload now</a>"
+                        + "</div>";
+
+                    var reloadLink = document.getElementById('reloadLink');
+                    reloadLink.setAttribute('href', href);
+
+                    var showMoreElem = document.getElementById("showMore");
+                    showMoreElem.addEventListener('click', function () {
+                            var moreInfoElem
+                                    = document.getElementById("moreInfo");
+
+                            if (showMoreElem.innerHTML === showMoreText) {
+                                moreInfoElem.setAttribute(
+                                    "style",
+                                    "display: block;"
+                                    + "color:#FF991F;"
+                                    + "font-size:small;"
+                                    + "user-select:text;");
+                                showMoreElem.innerHTML = showLessText;
+                            }
+                            else {
+                                moreInfoElem.setAttribute(
+                                    "style", "display: none;");
+                                showMoreElem.innerHTML = showMoreText;
+                            }
+                        });
+
+                    window.setTimeout(
+                        function () { window.location.replace(href); }, delay);
+
+                    // Call extra handler if defined.
+                    if (typeof postLoadErrorHandler === "function") {
+                        postLoadErrorHandler(fileRef);
+                    }
+                };
+                window.removeEventListener(
+                    'error', loadErrHandler, true /* capture phase */);
+            }
+        };
+        window.addEventListener(
+            'error', loadErrHandler, true /* capture phase type of listener */);
+    </script>
+    <script>/**
+ * Hey there Hacker One bounty hunters! None of the contents of this file are security sensitive.
+ * Sorry, but your princess is in another castle :-)
+ * Happy hunting!
+ */
+
+var subdomain = "";
+var subdomainDot = subdomain;
+if (subdomain) {
+    subdomain = subdomain.substr(0,subdomain.length-1).split('.').join('_').toLowerCase();
+    subdomainDot = subdomain + ".";
+}
+var config = {
+    hosts: {
+        domain: 'meet.ffmuc.net',
+        muc: 'conference.'+subdomainDot+'meet.ffmuc.net',
+        focus: 'focus.meet.ffmuc.net',
+    },
+
+    bridgeChannel: {
+        preferSctp: true,
+    },
+    disableSimulcast: false,
+    constraints: {
+        video: {
+                    height: {
+                ideal: 720,
+                max: 720,
+                min: 180
+            },
+            width: {
+                ideal: 1280,
+                max: 1280,
+                min: 320
+            },
+            frameRate: {
+                max: 30
+            }
+        }
+    },
+    enableInsecureRoomNameWarning: false,
+    analytics: {
+            amplitudeAPPKey: "fafdba4c3b47fe5f151060ca37f02d2f",
+        amplitudeIncludeUTM: false,
+            rtcstatsEnabled: true ,
+        rtcstatsStoreLogs: false ,
+        rtcstatsUseLegacy: false ,
+            rtcstatsEndpoint: "wss://rtcstats-server.jitsi.net/",
+            rtcstatsPollInterval: 10000,
+                whiteListedEvents: [ 'conference.joined', 'page.reload.scheduled', 'rejoined', 'transport.stats', 'rtcstats.trace.onclose', 'audio.play.error', 'audio.play.success', 'reaction.button.clicked', 'reaction.settings.sounds.disabled', 'poll.create', 'poll.vote.checked', 'poll.vote.sent', 'poll.vote.skipped', 'poll.vote.detailsViewed', 'poll.vote.changed', 'poll.option.added', 'poll.option.moved', 'poll.option.removed', 'breakout.rooms.create.button.clicked', 'breakout.rooms.close.button.clicked', 'breakout.rooms.remove.button.clicked', 'breakout.rooms.auto.assign.button.clicked', 'breakout.rooms.join.button.clicked', 'breakout.rooms.send.participant.to.room.button.clicked', 'recording.local.started', 'recording.local.self.started', 'not.allowed.error',  'whiteboard.open', 'whiteboard.restrict', 'network.info' ],
+    },
+    enableP2P: true, // flag to control P2P connections
+    enableIceRestart: true,
+    enableIceRestartOnNetworkChange: true,
+    // New P2P options
+    p2p: {
+        enabled: true,
+        codecPreferenceOrder: [ 'AV1', 'VP9', 'VP8', 'H264' ],
+        mobileCodecPreferenceOrder: [ 'VP8', 'H264', 'VP9', 'AV1' ],
+        useStunTurn: true // use XEP-0215 to fetch STUN and TURN servers for the P2P connection
+    },
+    useTurnUdp: false,
+    bosh: window.location.origin + '/http-bind',
+    preferBosh: true,
+    disableInitialGUM: true,
+    websocket: (window.location.protocol === 'https:' ? 'wss:' : 'ws:') + '//' + window.location.host + '/xmpp-websocket',
+
+    //deprecated desktop sharing settings, included only because older version of jitsi-meet require them
+    desktopSharing: 'webrtc', // Use the browser-native getDisplayMedia screen-share flow.
+    chromeExtensionId: 'kglhbbefdnlheedjiejgomgmfplipfeb', // Id of desktop streamer Chrome extension
+    desktopSharingSources: ['screen', 'window'],
+    googleApiApplicationClientID: "39065779381-bbhnkrgibtf4p0j9ne5vsq7bm49t1tlf.apps.googleusercontent.com",
+    microsoftApiApplicationClientID: "00000000-0000-0000-0000-000040240063",
+    enableCalendarIntegration: false,
+    //new desktop sharing settings
+    desktopSharingChromeExtId: 'kglhbbefdnlheedjiejgomgmfplipfeb', // Id of desktop streamer Chrome extension
+    desktopSharingChromeSources: ['screen', 'window', 'tab'],
+    enableSaveLogs: false,
+    channelLastN: 10, // The default value of the channel attribute last-n.
+    flags: {
+        sourceNameSignaling: true,
+        sendMultipleVideoStreams: true,
+        receiveMultipleVideoStreams: true,
+        },
+    maxFullResolutionParticipants: 1,
+    // Explicitly enable built-in + Orbit toolbar buttons. Jitsi filters allButtons
+    // through toolbarButtons, so custom buttons must be listed here too.
+    toolbarButtons: [
+        'microphone',
+        'camera',
+        'desktop',
+        'chat',
+        'raisehand',
+        'participants-pane',
+        'settings',
+        'tileview',
+        'invite',
+        'fullscreen',
+        'security',
+        'hangup',
+        'orbit-translator',
+        'orbit-donate'
+    ],
+    // Keep Screen Share and Translator in the main row across responsive widths.
+    mainToolbarButtons: [
+        [ 'microphone', 'camera', 'desktop', 'orbit-translator', 'chat', 'raisehand', 'participants-pane', 'orbit-donate' ],
+        [ 'microphone', 'camera', 'desktop', 'orbit-translator', 'chat', 'participants-pane', 'orbit-donate' ],
+        [ 'microphone', 'camera', 'desktop', 'orbit-translator', 'chat', 'participants-pane' ],
+        [ 'microphone', 'camera', 'desktop', 'orbit-translator', 'chat' ],
+        [ 'microphone', 'camera', 'desktop', 'orbit-translator' ],
+        [ 'microphone', 'desktop', 'orbit-translator' ],
+        [ 'microphone', 'desktop' ]
+    ],
+    buttonsWithNotifyClick: [
+        { key: 'orbit-translator', preventExecution: false },
+        { key: 'orbit-donate', preventExecution: false }
+    ],
+    customToolbarButtons: [
+        { id: 'orbit-translator', text: 'Translator', icon: '/images/orbit-translator.svg' },
+        { id: 'orbit-donate', text: 'Donate', icon: '/images/orbit-donate.svg' }
+    ],
+    videoQuality: {
+    enableAdaptiveMode: true,
+            codecPreferenceOrder: [ 'AV1', 'VP9', 'VP8', 'H264' ],
+                mobileCodecPreferenceOrder: [ 'VP8', 'H264', 'VP9', 'AV1' ],
+            vp9: {
+            scalabilityModeEnabled: true,
+            useSimulcast: false,
+        },
+        av1: {
+            useSimulcast: false,
+        },
+        },
+    enableDisplayNameInStats: false,
+    disableAudioLevels: false,
+    disableAEC: false,
+    disableAGC: false,
+    disableAP: false,
+    disableNS: false,
+    audioQuality: {
+        stereo: false,
+        enableOpusDtx: true,
+        enableAdvancedAudioSettings: true    },
+    audioTranslation: {
+        enabled: false,
+        duckedVolume: 0.15,
+        enableSendingChangeEvents: true
+    },
+    enableTalkWhileMuted: true,
+    mouseMoveCallbackInterval: 1000,
+    enableNoAudioDetection: true,
+    enableNoisyMicDetection: true,
+
+    enableClosePage: true,
+
+
+    disableLocalVideoFlip: false,
+
+    hiddenDomain: 'recorder.meet.ffmuc.net',
+
+
+
+
+
+    transcription: {
+        enabled: false,
+        translationEnabled: false,
+        disableClosedCaptions: true,
+        inviteJigasiOnBackendTranscribing: true,
+        renderTranscriptDetails: false    },
+    recordings: {
+        suggestRecording: false,
+        showPrejoinWarning: false,
+        requireConsent: false,
+                skipConsentInMeeting: false    },
+    liveStreaming: {
+        enabled: true    },
+    recordingService: {
+        enabled: false,
+        sharingEnabled: false    },
+    localRecording: {
+        disable: false,
+        notifyAllParticipants: true    },
+    requireDisplayName: false,
+    welcomePage: {
+            disabled: false    },
+    isBrand: false,
+    dialInNumbersUrl: 'https://api.jitsi.net/phoneNumberList',
+    dialInConfCodeUrl:  'https://api.jitsi.net/conferenceMapper',
+
+
+    startAudioMuted: 25,
+    startVideoMuted: 25,
+    enableUserRolesBasedOnToken: false,
+    enableForcedReload: true,
+    feedbackPercentage: 0,
+    deploymentUrls: {},
+    chromeExtensionBanner: {
+        url: "",
+        edgeUrl: "",
+        chromeExtensionsInfo: []
+    },
+    prejoinConfig: {
+        enabled: true,
+    },
+    moderatedRoomServiceUrl: '',
+    speakerStats: {
+        disableSearch: true    },
+    enableInsecureRoomNameWarning: false,
+    enableWebHIDFeature: true,
+    disableIframeAPI: true,
+    virtualBackground: {
+        enableV2: true
+    },
+    showChatPermissionsModeratorSetting: true,
+faceLandmarks: {
+    enableFaceCentering: true,
+    enableFaceExpressionsDetection: false,
+    enableDisplayFaceExpressions: false,
+    enableRTCStats: false,
+    faceCenteringThreshold: 20,
+    captureInterval: 1000
+},
+giphy: {
+    enabled: true,
+    sdkKey: 'zMXVKoebcgwTRkSm1JjLe6dU5aLfxdRY'
+},
+whiteboard: {
+    enabled: true,
+    collabServerBaseUrl: 'https://excalidraw-backend.cloudflare.jitsi.net',
+    userLimit: 25
+},
+    screenshotCapture:{
+        enabled: false ,
+        mode: 'recording'
+    },
+    toolbarConfig: {
+        timeout: 4000,
+        initialTimeout: 20000,
+        alwaysVisible: true
+    },
+    reducedUImainToolbarButtons: [ 'microphone', 'camera', 'desktop', 'orbit-translator' ],
+    deploymentInfo: {
+        environment: 'meet-jit-si',
+        envType: 'prod',
+        releaseNumber: '7059',
+        shard: 'meet-jit-si-us-ashburn-1-s10',
+        region: 'us-east-1'
+    },
+    e2eping: {
+        enabled: false
+    },
+    legalUrls: {},
+    deeplinking: {
+        disabled: true,
+        desktop: {
+            appName: "Orbit Meeting"
+        },
+        hideLogo: true,
+        showImage: false,
+        ios: {
+            appName: "Orbit Meeting",
+            appScheme: "org.jitsi.meet"
+        },
+        android: {
+            appName: "Orbit Meeting",
+            appScheme: "org.jitsi.meet",
+            appPackage: "org.jitsi.meet"
+        }
+    },
+    testing: {
+        enableCodecSelectionAPI: true,
+            disableAV1DecodeForFF: true,
+                mobileXmppWsThreshold: 100,
+                                enableGracefulReconnect: true,
+            }
+};
+</script><!-- adapt to your needs, i.e. set hosts and bosh path -->
+    <script>/* eslint-disable no-unused-vars, no-var, max-len */
+/* eslint sort-keys: ["error", "asc", {"caseSensitive": false}] */
+
+/**
+ * !!!IMPORTANT!!!
+ *
+ * This file is considered deprecated. All options will eventually be moved to
+ * config.js, and no new options should be added here.
+ */
+
+var interfaceConfig = {
+    APP_NAME: 'Orbit Meeting',
+    AUDIO_LEVEL_PRIMARY_COLOR: 'rgba(255,255,255,0.4)',
+    AUDIO_LEVEL_SECONDARY_COLOR: 'rgba(255,255,255,0.2)',
+
+    /**
+     * A UX mode where the last screen share participant is automatically
+     * pinned. Valid values are the string "remote-only" so remote participants
+     * get pinned but not local, otherwise any truthy value for all participants,
+     * and any falsy value to disable the feature.
+     *
+     * Note: this mode is experimental and subject to breakage.
+     */
+    AUTO_PIN_LATEST_SCREEN_SHARE: 'remote-only',
+    BRAND_WATERMARK_LINK: '',
+
+    CLOSE_PAGE_GUEST_HINT: false, // A html text to be shown to guests on the close page, false disables it
+
+    DEFAULT_BACKGROUND: '#040404',
+    DEFAULT_WELCOME_PAGE_LOGO_URL: 'images/watermark.svg',
+
+    DISABLE_DOMINANT_SPEAKER_INDICATOR: false,
+
+    /**
+     * If true, notifications regarding joining/leaving are no longer displayed.
+     */
+    DISABLE_JOIN_LEAVE_NOTIFICATIONS: false,
+
+    /**
+     * If true, presence status: busy, calling, connected etc. is not displayed.
+     */
+    DISABLE_PRESENCE_STATUS: false,
+
+    /**
+     * Whether the speech to text transcription subtitles panel is disabled.
+     * If {@code undefined}, defaults to {@code false}.
+     *
+     * @type {boolean}
+     */
+    DISABLE_TRANSCRIPTION_SUBTITLES: false,
+
+    /**
+     * Whether or not the blurred video background for large video should be
+     * displayed on browsers that can support it.
+     */
+    DISABLE_VIDEO_BACKGROUND: false,
+
+    DISPLAY_WELCOME_FOOTER: true,
+    DISPLAY_WELCOME_PAGE_ADDITIONAL_CARD: false,
+    DISPLAY_WELCOME_PAGE_CONTENT: false,
+    DISPLAY_WELCOME_PAGE_TOOLBAR_ADDITIONAL_CONTENT: false,
+
+    ENABLE_DIAL_OUT: true,
+
+    FILM_STRIP_MAX_HEIGHT: 120,
+
+    GENERATE_ROOMNAMES_ON_WELCOME_PAGE: true,
+
+    /**
+     * Hide the invite prompt in the header when alone in the meeting.
+     */
+    HIDE_INVITE_MORE_HEADER: false,
+
+    JITSI_WATERMARK_LINK: 'https://jitsi.org',
+
+    LANG_DETECTION: true, // Allow i18n to detect the system language
+    LOCAL_THUMBNAIL_RATIO: 16 / 9, // 16:9
+
+    /**
+     * Maximum coefficient of the ratio of the large video to the visible area
+     * after the large video is scaled to fit the window.
+     *
+     * @type {number}
+     */
+    MAXIMUM_ZOOMING_COEFFICIENT: 1.3,
+
+    /**
+     * Whether the mobile app Jitsi Meet is to be promoted to participants
+     * attempting to join a conference in a mobile Web browser. If
+     * {@code undefined}, defaults to {@code true}.
+     *
+     * @type {boolean}
+     */
+    MOBILE_APP_PROMO: true,
+
+    // Names of browsers which should show a warning stating the current browser
+    // has a suboptimal experience. Browsers which are not listed as optimal or
+    // unsupported are considered suboptimal. Valid values are:
+    // chrome, chromium, electron, firefox , safari, webkit
+    OPTIMAL_BROWSERS: [ 'chrome', 'chromium', 'firefox', 'electron', 'safari', 'webkit' ],
+
+    POLICY_LOGO: null,
+    PROVIDER_NAME: 'Orbit',
+
+    /**
+     * If true, will display recent list
+     *
+     * @type {boolean}
+     */
+    RECENT_LIST_ENABLED: true,
+    REMOTE_THUMBNAIL_RATIO: 1, // 1:1
+
+    SETTINGS_SECTIONS: [ 'devices', 'language', 'moderator', 'profile', 'calendar', 'shortcuts', 'sounds', 'more' ],
+
+    /**
+     * Specify which sharing features should be displayed. If the value is not set
+     * all sharing features will be shown. You can set [] to disable all.
+     */
+    // SHARING_FEATURES: ['email', 'url', 'dial-in', 'embed'],
+
+    SHOW_BRAND_WATERMARK: false,
+
+    /**
+     * Decides whether the chrome extension banner should be rendered on the landing page and during the meeting.
+     * If this is set to false, the banner will not be rendered at all. If set to true, the check for extension(s)
+     * being already installed is done before rendering.
+     */
+    SHOW_CHROME_EXTENSION_BANNER: false,
+
+    SHOW_JITSI_WATERMARK: true,
+    SHOW_POWERED_BY: false,
+    SHOW_PROMOTIONAL_CLOSE_PAGE: false,
+
+    /*
+     * If indicated some of the error dialogs may point to the support URL for
+     * help.
+     */
+    SUPPORT_URL: 'https://community.jitsi.org/',
+
+    // Browsers, in addition to those which do not fully support WebRTC, that
+    // are not supported and should show the unsupported browser page.
+    UNSUPPORTED_BROWSERS: [],
+
+    /**
+     * Whether to show thumbnails in filmstrip as a column instead of as a row.
+     */
+    VERTICAL_FILMSTRIP: true,
+
+    // Determines how the video would fit the screen. 'both' would fit the whole
+    // screen, 'height' would fit the original video height to the height of the
+    // screen, 'width' would fit the original video width to the width of the
+    // screen respecting ratio, 'nocrop' would make the video as large as
+    // possible and preserve aspect ratio without cropping.
+    VIDEO_LAYOUT_FIT: 'both',
+
+    /**
+     * If true, hides the video quality label indicating the resolution status
+     * of the current large video.
+     *
+     * @type {boolean}
+     */
+    VIDEO_QUALITY_LABEL_DISABLED: false,
+
+    /**
+     * How many columns the tile view can expand to. The respected range is
+     * between 1 and 5.
+     */
+    // TILE_VIEW_MAX_COLUMNS: 5,
+
+    // List of undocumented settings
+    /**
+     INDICATOR_FONT_SIZES
+     PHONE_NUMBER_REGEX
+    */
+
+    // -----------------DEPRECATED CONFIGS BELOW THIS LINE-----------------------------
+
+    /**
+     * Specify URL for downloading ios mobile app.
+     */
+    // MOBILE_DOWNLOAD_LINK_IOS: 'https://itunes.apple.com/us/app/jitsi-meet/id1165103905',
+
+    /**
+     * Specify custom URL for downloading android mobile app.
+     */
+    // MOBILE_DOWNLOAD_LINK_ANDROID: 'https://play.google.com/store/apps/details?id=org.jitsi.meet',
+
+    /**
+     * Specify mobile app scheme for opening the app from the mobile browser.
+     */
+    // APP_SCHEME: 'org.jitsi.meet',
+
+    // NATIVE_APP_NAME: 'Orbit Meeting',
+
+    /**
+     * Hide the logo on the deep linking pages.
+     */
+    // HIDE_DEEP_LINKING_LOGO: false,
+
+    /**
+     * Specify the Android app package name.
+     */
+    // ANDROID_APP_PACKAGE: 'org.jitsi.meet',
+
+    /**
+     * Specify custom URL for downloading f droid app.
+     */
+    // MOBILE_DOWNLOAD_LINK_F_DROID: 'https://f-droid.org/packages/org.jitsi.meet/',
+
+    // Connection indicators (
+    // CONNECTION_INDICATOR_AUTO_HIDE_ENABLED,
+    // CONNECTION_INDICATOR_AUTO_HIDE_TIMEOUT,
+    // CONNECTION_INDICATOR_DISABLED) got moved to config.js.
+
+    // Please use disableModeratorIndicator from config.js
+    // DISABLE_FOCUS_INDICATOR: false,
+
+    // Please use defaultLocalDisplayName from config.js
+    // DEFAULT_LOCAL_DISPLAY_NAME: 'me',
+
+    // Please use defaultLogoUrl from config.js
+    // DEFAULT_LOGO_URL: 'images/watermark.svg',
+
+    // Please use defaultRemoteDisplayName from config.js
+    // DEFAULT_REMOTE_DISPLAY_NAME: 'Fellow Jitster',
+
+    // Moved to config.js as `toolbarConfig.initialTimeout`.
+    // INITIAL_TOOLBAR_TIMEOUT: 20000,
+
+    // Please use `liveStreaming.helpLink` from config.js
+    // Documentation reference for the live streaming feature.
+    // LIVE_STREAMING_HELP_LINK: 'https://jitsi.org/live',
+
+    // Moved to config.js as `toolbarConfig.alwaysVisible`.
+    // TOOLBAR_ALWAYS_VISIBLE: false,
+
+    // This config was moved to config.js as `toolbarButtons`.
+    // TOOLBAR_BUTTONS: [],
+
+    // Moved to config.js as `toolbarConfig.timeout`.
+    // TOOLBAR_TIMEOUT: 4000,
+
+    // Allow all above example options to include a trailing comma and
+    // prevent fear when commenting out the last value.
+    // eslint-disable-next-line sort-keys
+    makeJsonParserHappy: 'even if last key had a trailing comma'
+
+    // No configuration value should follow this line.
+};
+
+/* eslint-enable no-unused-vars, no-var, max-len */
+var interfaceConfigOverride = {
+
+    DISABLE_FOCUS_INDICATOR: true,
+
+    /**
+     * If true, notifications regarding joining/leaving are no longer displayed.
+     */
+    DISABLE_JOIN_LEAVE_NOTIFICATIONS: true,
+
+    /**
+     * If true, presence status: busy, calling, connected etc. is not displayed.
+     */
+    DISABLE_PRESENCE_STATUS: true,
+
+    DISPLAY_WELCOME_FOOTER: false,
+    DISPLAY_WELCOME_PAGE_ADDITIONAL_CARD: false,
+    DISPLAY_WELCOME_PAGE_CONTENT: false,
+    DISPLAY_WELCOME_PAGE_TOOLBAR_ADDITIONAL_CONTENT: false,
+
+    JITSI_WATERMARK_LINK: '',
+
+    MOBILE_APP_PROMO: false,
+
+    SETTINGS_SECTIONS: [ 'devices', 'language', 'moderator', 'profile', 'shortcuts', 'sounds', 'more' ],
+
+    SHOW_CHROME_EXTENSION_BANNER: false,
+
+    SHOW_PROMOTIONAL_CLOSE_PAGE: false,
+
+    SUPPORT_URL: '',
+
+    ENABLE_DIAL_OUT: false,
+
+    TILE_VIEW_MAX_COLUMNS: 10,
+
+    // Allow all above example options to include a trailing comma and
+    // prevent fear when commenting out the last value.
+    // eslint-disable-next-line sort-keys
+    makeJsonParserHappy: 'even if last key had a trailing comma'
+
+    // No configuration value should follow this line.
+};
+Object.assign(interfaceConfig, interfaceConfigOverride);
+</script>
+    <script>
+(function () {
+  function kind(href) {
+    if (!href || href.charAt(0) === "#") return null;
+    var url;
+    try { url = new URL(href, location.origin); } catch (e) { return null; }
+    if (url.origin === location.origin) return null;
+    if (url.protocol !== "http:" && url.protocol !== "https:" && url.protocol !== "mailto:" && url.protocol !== "tel:") return null;
+    var host = url.hostname;
+    if ((host === "meet.jit.si" || host.endsWith(".meet.jit.si")) && !/auth|signin|signout/i.test(url.pathname)) return "rewrite";
+    return "hide";
+  }
+  function sweep() {
+    var nodes = document.querySelectorAll("a[href]");
+    for (var i = 0; i < nodes.length; i++) {
+      var a = nodes[i];
+      var action = kind(a.getAttribute("href") || a.href);
+      if (!action) continue;
+      if (action === "rewrite") {
+        var url = new URL(a.href);
+        a.setAttribute("href", location.origin + url.pathname + url.search + url.hash);
+        a.removeAttribute("target");
+        continue;
+      }
+      if (a.classList.contains("watermark")) {
+        a.removeAttribute("href");
+        a.removeAttribute("target");
+        a.style.cursor = "default";
+        continue;
+      }
+      a.removeAttribute("href");
+      a.removeAttribute("target");
+      a.setAttribute("hidden", "");
+      a.style.display = "none";
+    }
+  }
+  document.addEventListener("click", function (event) {
+    var node = event.target && event.target.closest ? event.target.closest("a") : null;
+    if (!node) return;
+    if (kind(node.getAttribute("href") || node.href)) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  }, true);
+  var open = window.open;
+  window.open = function (url) {
+    if (kind(String(url || ""))) return null;
+    return open.apply(window, arguments);
+  };
+  var observer = new MutationObserver(sweep);
+  function start() {
+    sweep();
+    observer.observe(document.documentElement, { subtree: true, childList: true, attributes: true, attributeFilter: ["href"] });
+  }
+  if (document.documentElement) start();
+  else document.addEventListener("DOMContentLoaded", start);
+})();
+</script>
+    <script src="libs/lib-jitsi-meet.min.js?v=9442.6546"></script>
+    <script src="libs/app.bundle.min.js?v=9442.6546"></script>
+    <script src="orbit-extension.js?v=6"></script>
+    <title>Orbit Meeting</title>
+<meta property="og:title" content="Orbit Meeting"/>
+<meta property="og:image" content="/og.jpg"/>
+<meta property="og:description" content="Join a WebRTC video conference on Orbit Meeting"/>
+<meta name="description" content="Join a WebRTC video conference on Orbit Meeting"/>
+<meta itemprop="name" content="Orbit Meeting"/>
+<meta itemprop="description" content="Join a WebRTC video conference on Orbit Meeting"/>
+<meta itemprop="image" content="/og.jpg"/>
+<link rel="icon" href="images/favicon.svg?v=1">
+    
+
+<script>
+(function() {
+  var filter_list=[];
+  if (filter_list && filter_list.length >0) {
+    interfaceConfig.TOOLBAR_BUTTONS = interfaceConfig.TOOLBAR_BUTTONS.filter(function (e) {
+      return filter_list.indexOf(e) == -1;
+    });
+  }
+}());
+</script>
+
+    <template id="welcome-page-additional-content-template"></template>
+
+    <template id="welcome-page-additional-card-template"></template>
+
+    <template id="settings-toolbar-additional-content-template"></template>
+
+  </head>
+  <body>
+    <noscript aria-hidden="true">
+        <div>JavaScript is disabled. </br>For this site to work you have to enable JavaScript.</div>
+    </noscript>
+    
+    <div id="react" role="main"></div>
+  </body>
+</html>
