@@ -31,7 +31,7 @@ export type LobbyGuest = {
   role?: string;
 };
 
-export type PanelId = "chat" | "people" | "settings" | "shortcuts" | "stats";
+export type PanelId = "chat" | "people" | "translator" | "settings" | "shortcuts" | "stats";
 
 type MeetingState = {
   displayName: string;
