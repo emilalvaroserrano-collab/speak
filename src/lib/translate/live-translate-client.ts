@@ -52,13 +52,13 @@ function setupMessage(session: TranslateSessionPayload) {
       model: `models/${session.model}`,
       generationConfig: {
         responseModalities: ["AUDIO"],
+        inputAudioTranscription: {},
+        outputAudioTranscription: {},
         translationConfig: {
           targetLanguageCode: session.targetLanguage,
           echoTargetLanguage: true,
         },
       },
-      inputAudioTranscription: {},
-      outputAudioTranscription: {},
     },
   };
 }
@@ -89,13 +89,7 @@ export class LiveTranslateClient {
   private socket: WebSocket | null = null;
   private player: PcmPlayer | null = null;
   private captureContext: AudioContext | null = null;
-  private mix: GainNode | null = null;
-  private mediaStream: MediaStream | null = null;
-  private displayStream: MediaStream | null = null;
-  private displaySource: MediaStreamAudioSourceNode | null = null;
-  private hasDisplayAudio = false;
   private ready = false;
-  private micMuted = false;
   private speakerMuted = false;
   private closed = false;
   private sourceBuffer = "";
@@ -103,17 +97,10 @@ export class LiveTranslateClient {
   private sourceLanguage?: string;
   private translationLanguage?: string;
   private lines: TranscriptLine[] = [];
+  private pendingSamples: number[] = [];
 
   constructor(listeners: LiveTranslateListeners) {
     this.listeners = listeners;
-  }
-
-  setMicMuted(muted: boolean) {
-    this.micMuted = muted;
-    this.mediaStream?.getAudioTracks().forEach((track) => {
-      track.enabled = !muted;
-    });
-    if (muted && !this.hasDisplayAudio) this.listeners.onInputLevel(0);
   }
 
   setSpeakerMuted(muted: boolean) {
@@ -121,61 +108,16 @@ export class LiveTranslateClient {
     this.player?.setMuted(muted);
   }
 
-  setDisplayStream(stream: MediaStream | null) {
-    this.displayStream = stream;
-    this.connectDisplay(stream);
-  }
-
-  private connectDisplay(stream: MediaStream | null) {
-    this.displaySource?.disconnect();
-    this.displaySource = null;
-    this.hasDisplayAudio = false;
-    if (!stream || !this.captureContext || !this.mix) return;
-    const liveAudio = stream.getAudioTracks().some((track) => track.readyState === "live");
-    if (!liveAudio) return;
-    this.displaySource = this.captureContext.createMediaStreamSource(stream);
-    this.displaySource.connect(this.mix);
-    this.hasDisplayAudio = true;
-  }
-
-  private canSendAudio() {
-    const micLive = Boolean(this.mediaStream) && !this.micMuted;
-    return micLive || this.hasDisplayAudio;
-  }
-
-  async start(session: TranslateSessionPayload, options?: { displayStream?: MediaStream | null }) {
+  async start(session: TranslateSessionPayload, options: { sourceStream: MediaStream }) {
     this.closed = false;
     this.listeners.onStatus("connecting");
     this.listeners.onError("");
-    if (options?.displayStream) this.displayStream = options.displayStream;
 
-    let stream: MediaStream | null = null;
-    try {
-      stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-          channelCount: 1,
-        },
-        video: false,
-      });
-    } catch (error) {
-      const displayHasAudio = this.displayStream
-        ?.getAudioTracks()
-        .some((track) => track.readyState === "live");
-      if (!displayHasAudio) throw error;
+    const sourceStream = options.sourceStream;
+    const liveAudio = sourceStream.getAudioTracks().some((track) => track.readyState === "live");
+    if (!liveAudio) {
+      throw new Error("No live incoming audio track is available to translate.");
     }
-
-    if (this.closed) {
-      stream?.getTracks().forEach((track) => track.stop());
-      return;
-    }
-
-    this.mediaStream = stream;
-    stream?.getAudioTracks().forEach((track) => {
-      track.enabled = !this.micMuted;
-    });
 
     this.player = new PcmPlayer();
     this.player.setMuted(this.speakerMuted);
@@ -185,19 +127,13 @@ export class LiveTranslateClient {
       const captureContext = new AudioContext();
       this.captureContext = captureContext;
       await captureContext.resume();
-      const mix = captureContext.createGain();
-      this.mix = mix;
-      if (stream) {
-        const micSource = captureContext.createMediaStreamSource(stream);
-        micSource.connect(mix);
-      }
-      this.connectDisplay(this.displayStream);
+      const source = captureContext.createMediaStreamSource(sourceStream);
       const capture = await createCaptureNode(captureContext, (frame) => {
         this.handleInputFrame(frame, captureContext.sampleRate);
       });
       const silent = captureContext.createGain();
       silent.gain.value = 0;
-      mix.connect(capture);
+      source.connect(capture);
       capture.connect(silent);
       silent.connect(captureContext.destination);
 
@@ -240,12 +176,7 @@ export class LiveTranslateClient {
       /* ignore */
     }
     this.socket = null;
-    this.mediaStream?.getTracks().forEach((track) => track.stop());
-    this.mediaStream = null;
-    this.displaySource?.disconnect();
-    this.displaySource = null;
-    this.hasDisplayAudio = false;
-    this.mix = null;
+    this.pendingSamples = [];
     await this.captureContext?.close().catch(() => undefined);
     this.captureContext = null;
     await this.player?.close();
@@ -260,23 +191,29 @@ export class LiveTranslateClient {
   }
 
   private handleInputFrame(frame: Float32Array, sampleRate: number) {
-    const sending = this.canSendAudio();
     const level = Math.min(1, rms(frame) * 4);
-    this.listeners.onInputLevel(sending ? level : 0);
-    if (!this.ready || !sending || this.socket?.readyState !== WebSocket.OPEN) {
-      return;
-    }
+    this.listeners.onInputLevel(level);
+
     const downsampled = downsample(frame, sampleRate, SEND_SAMPLE_RATE);
-    const pcm = floatTo16BitPcm(downsampled);
-    const message = {
-      realtimeInput: {
-        audio: {
-          data: arrayBufferToBase64(pcm),
-          mimeType: "audio/pcm;rate=16000",
+    for (let index = 0; index < downsampled.length; index += 1) {
+      this.pendingSamples.push(downsampled[index] ?? 0);
+    }
+
+    const chunkSamples = Math.floor(SEND_SAMPLE_RATE * 0.1);
+    while (this.pendingSamples.length >= chunkSamples) {
+      const chunk = new Float32Array(this.pendingSamples.splice(0, chunkSamples));
+      if (!this.ready || this.socket?.readyState !== WebSocket.OPEN) continue;
+
+      const pcm = floatTo16BitPcm(chunk);
+      this.socket.send(JSON.stringify({
+        realtimeInput: {
+          audio: {
+            data: arrayBufferToBase64(pcm),
+            mimeType: "audio/pcm;rate=16000",
+          },
         },
-      },
-    };
-    this.socket.send(JSON.stringify(message));
+      }));
+    }
   }
 
   private async handleSocketMessage(event: MessageEvent) {
