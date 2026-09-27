@@ -24,6 +24,7 @@ import {
   Video,
   VideoOff,
   Copy,
+  Languages,
 } from "lucide-react";
 import { roomLabel } from "@/lib/rooms";
 import { useMeeting, type Reaction } from "@/lib/meeting-store";
@@ -246,7 +247,7 @@ export function Room({ room, media }: { room: string; media: LocalMedia }) {
             mirror={mirror}
           />
         </div>
-        <SidePanel now={now} />
+        <SidePanel now={now} incomingStream={shareStream} />
       </div>
 
       <div className="dock flex shrink-0 items-center justify-center gap-2 px-3 pt-1">
@@ -302,6 +303,9 @@ export function Room({ room, media }: { room: string; media: LocalMedia }) {
             </Popover.Portal>
           </Popover.Root>
 
+          <ToolButton label="Translator" pressed={panel === "translator"} onClick={() => togglePanel("translator")}>
+            <Languages className="size-5" />
+          </ToolButton>
           <ToolButton label="Chat" pressed={panel === "chat"} onClick={() => togglePanel("chat")}>
             <MessageSquare className="size-5" />
             {unread > 0 && (
