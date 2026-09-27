@@ -119,8 +119,6 @@ export function useLiveTranslation(stream: MediaStream | null, enabled: boolean,
           },
         });
         clientRef.current = client;
-        // Meeting rule: never translate the local microphone.
-        client.setMicMuted(true);
         await client.start(
           {
             mode: "token",
@@ -128,7 +126,7 @@ export function useLiveTranslation(stream: MediaStream | null, enabled: boolean,
             model: payload.model,
             targetLanguage: language,
           },
-          { displayStream: sourceStream },
+          { sourceStream },
         );
       } catch (error) {
         if (cancelled) return;
