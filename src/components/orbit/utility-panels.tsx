@@ -35,7 +35,7 @@ export function TranslatorPanel({ active, incomingStream }: { active: boolean; i
               className="z-50 max-h-72 w-[var(--radix-select-trigger-width)] overflow-hidden rounded-lg border border-line bg-elevated shadow-panel"
             >
               <Select.Viewport className="scroll-thin max-h-72 overflow-y-auto p-1">
-                {TRANSLATION_LANGUAGES.map((item) => (
+                {TRANSLATION_LANGUAGES.filter((item) => item.liveSupported && item.code).map((item) => (
                   <Select.Item
                     key={item.code}
                     value={item.code}
