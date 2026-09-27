@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import { roomLabel } from "@/lib/rooms";
 import { useMeeting } from "@/lib/meeting-store";
 import { Button } from "@/components/ui/button";
+import { TranslatorPanel } from "@/components/orbit/utility-panels";
 
 const SHORTCUTS = [
   ["M", "Mute or unmute"],
@@ -32,7 +33,7 @@ function formatElapsed(startedAt: number | null, now: number) {
   return hours > 0 ? `${hours}:${mm}:${ss}` : `${mm}:${ss}`;
 }
 
-export function SidePanel({ now }: { now: number }) {
+export function SidePanel({ now, incomingStream }: { now: number; incomingStream: MediaStream | null }) {
   const panel = useMeeting((state) => state.panel);
   const closePanel = useMeeting((state) => state.closePanel);
   if (!panel) return null;
@@ -42,7 +43,9 @@ export function SidePanel({ now }: { now: number }) {
       ? "Chat"
       : panel === "people"
         ? "Participants"
-        : panel === "settings"
+        : panel === "translator"
+          ? "Translator"
+          : panel === "settings"
           ? "Settings"
           : panel === "shortcuts"
             ? "Shortcuts"
@@ -59,6 +62,7 @@ export function SidePanel({ now }: { now: number }) {
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         {panel === "chat" && <ChatPanel />}
         {panel === "people" && <PeoplePanel />}
+        {panel === "translator" && <TranslatorPanel active={panel === "translator"} incomingStream={incomingStream} />}
         {panel === "settings" && <SettingsPanel />}
         {panel === "shortcuts" && <ShortcutsPanel />}
         {panel === "stats" && <StatsPanel now={now} />}
